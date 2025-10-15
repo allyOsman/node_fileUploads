@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const upload = require("../utils/file");
+const upload = require("../middlewares/fileUpload");
+// const compressPdf = require("../middlewares/compressPdf"); I will deal with this later.
 
 const {
   getAllFiles,
@@ -18,12 +19,12 @@ router.post("/upload", upload.single("file"), fileUpload);
 router.get("/files", getAllFiles);
 
 //GET:api/download
-router.get("/download", fileDownload);
-
-//PUT:api/update/:fileId
-router.put("/update/:fileId", fileUpdate);
+router.get("/download/:fileId", fileDownload);
 
 //PUT:api/delete/:fileId
 router.delete("/delete/:fileId", fileDelete);
+
+//PUT:api/update/:fileId
+router.put("/update/:fileId", fileUpdate);
 
 module.exports = router;

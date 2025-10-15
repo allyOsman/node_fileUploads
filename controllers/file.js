@@ -42,6 +42,57 @@ exports.getAllFiles = async (req, res, next) => {
       .json({ message: "Internal server error", error: error.message });
   }
 };
-exports.fileDownload = async (req, res, next) => {};
-exports.fileUpdate = async (req, res, next) => {};
-exports.fileDelete = async (req, res, next) => {};
+exports.fileDownload = async (req, res, next) => {
+  try {
+    const { fileId } = req.params;
+
+    const file = await File.findById(fileId);
+    if (!file) {
+      return res.status(404).json({ message: "file not found." });
+    }
+
+    res.download(file.path, file.originalName);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
+
+exports.fileDelete = async (req, res, next) => {
+  try {
+    const { fileId } = req.params;
+
+    const file = await File.findById(fileId);
+    if (!file) {
+      return res.status(404).json({ message: "file not found." });
+    }
+
+    fs.unlinkSync(file.path);
+    await File.findByIdAndDelete(fileId);
+
+    res.status(200).json({ message: "File deleted successfully." });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
+exports.fileUpdate = async (req, res, next) => {
+  try {
+    const { fileId } = req.params;
+    const { originalName } = req.body;
+
+    const file = await File.findByIdAndUpdate(
+      fileId,
+      { originalName },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "File update successfully.", file });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
